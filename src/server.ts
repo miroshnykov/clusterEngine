@@ -8,7 +8,7 @@ import * as bodyParser from 'body-parser';
 // import {offer} from './routing'
 // import {offer} from './Routes/offer'
 import routes from './Routes/index';
-
+// import offers from './Crons/offers'
 // ES6 import or TypeScript
 import {io} from "socket.io-client";
 

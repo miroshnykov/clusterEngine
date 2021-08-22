@@ -1,4 +1,4 @@
-import {OfferController} from './Offer';
+import {OfferController} from './OfferController';
 
 const offerController = new OfferController();
 

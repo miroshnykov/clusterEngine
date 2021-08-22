@@ -1,8 +1,8 @@
 import {Request, Response} from 'express';
-import {getOffer} from '../Models/offer'
-import {getCampaign} from '../Models/campaign'
+import {getOffer} from '../Models/offersModel'
+import {getCampaign} from '../Models/campaignsModel'
 
-export const offer = async (id: number) => {
+export const offersServices = async (id: number) => {
   try {
     let offer = await getOffer(id)
     let calculations = {}

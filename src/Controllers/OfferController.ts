@@ -1,12 +1,12 @@
 import {Request, Response} from 'express';
-import {CrudController} from './CrudController';
-import {offer} from '../Services/offer'
+import {BaseController} from './BaseController';
+import {offersServices} from '../Services/offersServices'
 import consola from 'consola'
 
-export class OfferController extends CrudController {
+export class OfferController extends BaseController {
 
   public async read(req: Request, res: Response) {
-    let responseOffer = await offer(10)
+    let responseOffer = await offersServices(10)
     consola.info('responseOffer:', responseOffer)
     consola.info(req.query)
     if (req.query.debug === 'debug') {
