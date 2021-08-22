@@ -2,6 +2,7 @@ import zlib from "zlib";
 import fs from "fs";
 import JSONStream from "JSONStream";
 import {redis} from "../redis";
+import consola from "consola";
 
 export const setOffersToRedis = async () => {
 
@@ -11,19 +12,19 @@ export const setOffersToRedis = async () => {
     let stream = fs.createReadStream(file)
     let jsonStream = JSONStream.parse('*')
     stream.pipe(gunzip).pipe(jsonStream)
-    console.log(` \n  *** Set offers to Local Redis *** Size redis:`)
+    consola.info(` \n  *** Set offers to Local Redis *** Size redis:`)
     jsonStream.on('data', async (item: any) => {
       if (!item.offerId) {
         return
       }
-      console.log(`Set offerNew to redis offerId:${item.offerId}`)
+      consola.info(`Set offerNew to redis offerId:${item.offerId}`)
       await redis.set(`offerNew-${item.offerId}`, JSON.stringify(item))
 
     })
 
 
   } catch (e) {
-    console.info('setOffersToRedisError:', e)
+    consola.error('setOffersToRedisError:', e)
   }
 
 }
