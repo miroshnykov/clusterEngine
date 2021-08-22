@@ -8,7 +8,7 @@ import * as bodyParser from 'body-parser';
 // import {offer} from './routing'
 // import {offer} from './Routes/offer'
 import routes from './Routes/index';
-// import offers from './Crons/offers'
+import {setOffersToRedis} from './Crons/offersCron'
 // ES6 import or TypeScript
 import {io} from "socket.io-client";
 
@@ -85,6 +85,11 @@ if (cluster.isMaster) {
       cluster.fork()
     })
   }
+  if (process.env.ENV !== 'development') {
+    setInterval(setOffersToRedis, 60000) // 60000 -> 60 sec
+  }
+
+
 } else {
   const server = http.createServer(app) as Server
   app.use(loggerMiddleware);
@@ -103,5 +108,7 @@ if (cluster.isMaster) {
   const host: any = process.env.HOST
   const port: any = process.env.PORT
 
-  server.listen(port, host, (): void => consola.success(`Server is running on host http://:${host}:${port}`))
+  server.listen(port, host, (): void => {
+    consola.success(`Server is running on host http://:${host}:${port}, env:${process.env.ENV} `)
+  })
 }
