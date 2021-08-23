@@ -114,8 +114,8 @@ if (cluster.isMaster) {
   });
 
   app.use(routes);
-  const host: any = process.env.HOST
-  const port: any = process.env.PORT
+  const host: string = process.env.HOST || ''
+  const port: number = parseInt(process.env.PORT || '5000')
 
   server.listen(port, host, (): void => {
     consola.success(`Server is running on host http://${host}:${port}, env:${process.env.ENV} `)
