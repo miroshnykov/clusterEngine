@@ -9,13 +9,14 @@ import * as bodyParser from 'body-parser';
 // import {offer} from './Routes/offer'
 import routes from './Routes/index';
 import {setOffersToRedis} from './Crons/offersCron'
-// ES6 import or TypeScript
 import {io} from "socket.io-client";
 
 const app: Application = express();
 
 let coreThread: CpuInfo[] = cpus();
 import 'dotenv/config';
+import {getFileFromBucket} from "./Crons/offersReceipS3Cron";
+import {redis} from "./redis";
 
 coreThread.length = 1
 
@@ -41,15 +42,27 @@ if (cluster.isMaster) {
     console.log(`Socket connected, host: ${host}`)
   });
 
-  socket.on('fileSizeInfo', async (fileSizeInfo) => {
+  socket.on('fileSizeOffersCheck', async (offersSize) => {
 
     try {
-      console.log('GET from recipe:', fileSizeInfo)
-      socket.emit('sendFileOffer')
+      consola.warn('Size offers from recipe and from engine is different  ')
+      consola.info('GET from recipe fileSizeOffersCheck:', offersSize)
+      consola.info(`Re-download new recipe from S3`)
+      setTimeout(getFileFromBucket, 6000)
     } catch (e) {
-      console.log(`fileSizeInfoError:`, e)
+      console.log(`fileSizeOffersInfoError:`, e)
     }
   })
+
+  const setOffersCheckSize = async () => {
+    try {
+      let offerSize = await redis.get(`offersSize_`)
+      socket.emit('fileSizeOffersCheck', offerSize)
+    } catch (e) {
+      consola.error(`setOffersCheckSizeError:`, e)
+    }
+  }
+  setInterval(setOffersCheckSize, 9000)
 
   for (let i = 0; i < coreThread.length; i++) {
     cluster.fork()
@@ -85,10 +98,12 @@ if (cluster.isMaster) {
       cluster.fork()
     })
   }
-  if (process.env.ENV !== 'development') {
+  if (process.env.ENV === 'development') {
     setInterval(setOffersToRedis, 60000) // 60000 -> 60 sec
   }
-
+  if (process.env.ENV === 'development') {
+    setTimeout(getFileFromBucket, 6000)
+  }
 
 } else {
   const server = http.createServer(app) as Server
@@ -98,17 +113,11 @@ if (cluster.isMaster) {
     res.send('done')
   });
 
-  // app.use('/offer',offer);
   app.use(routes);
-  // app.post('/offer', (request:Request, response:Response, next:NextFunction) => {
-  //     response.send(request.body);
-  // });
-
-
   const host: any = process.env.HOST
   const port: any = process.env.PORT
 
   server.listen(port, host, (): void => {
-    consola.success(`Server is running on host http://:${host}:${port}, env:${process.env.ENV} `)
+    consola.success(`Server is running on host http://${host}:${port}, env:${process.env.ENV} `)
   })
 }

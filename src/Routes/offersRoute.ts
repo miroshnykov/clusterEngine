@@ -1,16 +1,10 @@
-import express, {Application, Request, Response} from 'express';
-
-const app: Application = express();
-import {Router} from 'express';
+import {Router, Request, Response, NextFunction} from 'express';
 
 const offersRouter = Router();
 import {offerController} from '../Controllers';
 
-import fs from "fs";
-
-offersRouter.get('/', async (req: Request, res: Response) => {
-  await offerController.read(req, res)
-  // return res.json("OK");
+offersRouter.get('/', async (req: Request, res: Response, next:NextFunction): Promise<any> => {
+  await offerController.read(req, res, next)
 });
 
 export default offersRouter;

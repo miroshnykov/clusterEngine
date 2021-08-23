@@ -1,5 +1,5 @@
-import {Request, Response} from 'express';
+import {Request, Response, NextFunction} from 'express';
 
 export abstract class BaseController {
-  public abstract read(req: Request, res: Response): void;
+  public abstract read(req: Request, res: Response, next: NextFunction): void;
 }
