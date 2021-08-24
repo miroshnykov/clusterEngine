@@ -12,10 +12,10 @@ AWS.config.update({
   region: process.env.AWS_REGION
 });
 const s3 = new AWS.S3();
-const tempFileName = process.env.OFFERS_RECIPE_PATH || ''
-export const getOffersFileFromBucket = async () => {
+const tempFileName = process.env.CAMPAIGNS_RECIPE_PATH || ''
+export const getCampaignsFileFromBucket = async () => {
   try {
-    let s3Key = process.env.S3_OFFERS_RECIPE_PATH || ''
+    let s3Key = process.env.S3_CAMPAIGNS_RECIPE_PATH || ''
     let s3BucketName = process.env.S3_BUCKET_NAME || ''
     let params = {Bucket: s3BucketName, Key: s3Key}
     const s3Stream = s3.getObject(params!).createReadStream();
@@ -32,7 +32,7 @@ export const getOffersFileFromBucket = async () => {
       .on('close', () => {
         getFileSize(tempFileName).then(async size => {
           consola.success(`file size ${tempFileName} is { ${size} }`);
-          await redis.set(`offersSize_`, size!)
+          await redis.set(`campaignsSize_`, size!)
         })
         consola.success(`file ${tempFileName} was uploaded correctly.`);
 

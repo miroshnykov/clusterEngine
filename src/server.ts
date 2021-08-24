@@ -8,15 +8,17 @@ import * as bodyParser from 'body-parser';
 // import {offer} from './routing'
 // import {offer} from './Routes/offer'
 import routes from './Routes/index';
-import {setOffersToRedis} from './Crons/offersCron'
+import {setOffersToRedis} from './Crons/offersToRedisCron'
+import {setCampaignsToRedis} from "./Crons/campaignsToRedisCron";
 import {io} from "socket.io-client";
 
 const app: Application = express();
 
 let coreThread: CpuInfo[] = cpus();
 import 'dotenv/config';
-import {getFileFromBucket} from "./Crons/offersReceipS3Cron";
+import {getOffersFileFromBucket} from "./Crons/offersReceipS3Cron";
 import {redis} from "./redis";
+import {getCampaignsFileFromBucket} from "./Crons/campaignsReceipS3Cron";
 
 coreThread.length = 1
 
@@ -47,10 +49,22 @@ if (cluster.isMaster) {
     try {
       consola.warn('Size offers from recipe and from engine is different  ')
       consola.info('GET from recipe fileSizeOffersCheck:', offersSize)
-      consola.info(`Re-download new recipe from S3`)
-      setTimeout(getFileFromBucket, 6000)
+      consola.info(`Re-download new recipe offers from S3`)
+      setTimeout(getOffersFileFromBucket, 6000)
     } catch (e) {
       console.log(`fileSizeOffersInfoError:`, e)
+    }
+  })
+
+  socket.on('fileSizeCampaignsCheck', async (campaignsSize) => {
+
+    try {
+      consola.warn('Size campaigns from recipe and from engine is different  ')
+      consola.info('GET from recipe fileSizeCampaignsCheck:', campaignsSize)
+      consola.info(`Re-download new recipe campaigns from S3`)
+      setTimeout(getCampaignsFileFromBucket, 6000)
+    } catch (e) {
+      console.log(`fileSizeCampaignsInfoError:`, e)
     }
   })
 
@@ -63,6 +77,16 @@ if (cluster.isMaster) {
     }
   }
   setInterval(setOffersCheckSize, 9000)
+
+  const setCampaignsCheckSize = async () => {
+    try {
+      let campaignsSize = await redis.get(`campaignsSize_`)
+      socket.emit('fileSizeCampaignsCheck', campaignsSize)
+    } catch (e) {
+      consola.error(`setCampaignsCheckSizeError:`, e)
+    }
+  }
+  setInterval(setCampaignsCheckSize, 9000)
 
   for (let i = 0; i < coreThread.length; i++) {
     cluster.fork()
@@ -100,10 +124,19 @@ if (cluster.isMaster) {
   }
   if (process.env.ENV === 'development') {
     setInterval(setOffersToRedis, 60000) // 60000 -> 60 sec
+    setTimeout(setOffersToRedis, 6000)
+
+    // setInterval(getOffersFileFromBucket, 6000)
+    // setTimeout(getOffersFileFromBucket, 6000)
+
+    setTimeout(setCampaignsToRedis, 6000)
+    setInterval(setCampaignsToRedis, 60000) // 60000 -> 60 sec
+
+    // setTimeout(getCampaignsFileFromBucket, 6000)
+    // setInterval(getCampaignsFileFromBucket, 6000)
+
   }
-  if (process.env.ENV === 'development') {
-    setTimeout(getFileFromBucket, 6000)
-  }
+
 
 } else {
   const server = http.createServer(app) as Server

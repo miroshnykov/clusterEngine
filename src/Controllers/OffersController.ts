@@ -7,14 +7,14 @@ export class OffersController extends BaseController {
 
   public async read(req: Request, res: Response, next: NextFunction): Promise<any> {
     const offerId: number = +req.query.offerId! || 0
-    let responseOffer = await offersServices(offerId)
-    consola.info('responseOffer:', responseOffer)
-    consola.info(req.query)
+    let responseOffer = await offersServices(req)
+    // consola.info('responseOffer:', responseOffer)
+    // consola.info(req.query)
 
-    if (req.query.debug === 'debug') {
+    if (responseOffer?.debug) {
       res.status(200).json({
         status: 'success',
-        data: JSON.parse(responseOffer!)
+        data: responseOffer!
       })
       return next()
     }

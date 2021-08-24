@@ -8,25 +8,25 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-export const setOffersToRedis = async () => {
+export const setCampaignsToRedis = async () => {
 
   try {
     let gunzip = zlib.createGunzip();
-    let file = process.env.OFFERS_RECIPE_PATH || ''
+    let file = process.env.CAMPAIGNS_RECIPE_PATH || ''
     let stream = fs.createReadStream(file)
     let jsonStream = JSONStream.parse('*')
     stream.pipe(gunzip).pipe(jsonStream)
-    consola.info(` \n  *** Set offers to Local Redis *** Size redis:`)
+    consola.info(`Set campaigns to Local Redis`)
     jsonStream.on('data', async (item: any) => {
-      if (!item.offerId) {
+      if (!item.campaignId) {
         return
       }
-      consola.info(`Set offers to redis offer_${item.offerId}`)
-      await redis.set(`offer_${item.offerId}`, JSON.stringify(item))
+      //consola.success(`Set campaigns to redis campaign_${item.campaignId}`)
+      await redis.set(`campaign_${item.campaignId}`, JSON.stringify(item))
     })
 
   } catch (e) {
-    consola.error('setOffersToRedisError:', e)
+    consola.error('setCampaignsToRedisError:', e)
   }
 
 }
