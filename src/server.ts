@@ -51,6 +51,7 @@ if (cluster.isMaster) {
       consola.info('GET from recipe fileSizeOffersCheck:', offersSize)
       consola.info(`Re-download new recipe offers from S3`)
       setTimeout(getOffersFileFromBucket, 6000)
+      setTimeout(setOffersToRedis, 20000)
     } catch (e) {
       console.log(`fileSizeOffersInfoError:`, e)
     }
@@ -63,14 +64,15 @@ if (cluster.isMaster) {
       consola.info('GET from recipe fileSizeCampaignsCheck:', campaignsSize)
       consola.info(`Re-download new recipe campaigns from S3`)
       setTimeout(getCampaignsFileFromBucket, 6000)
+      setTimeout(setCampaignsToRedis, 20000)
     } catch (e) {
       console.log(`fileSizeCampaignsInfoError:`, e)
     }
   })
 
-  const setOffersCheckSize = async () => {
+  const setOffersCheckSize: () => Promise<void> = async () => {
     try {
-      let offerSize = await redis.get(`offersSize_`)
+      let offerSize: string | null = await redis.get(`offersSize_`)
       socket.emit('fileSizeOffersCheck', offerSize)
     } catch (e) {
       consola.error(`setOffersCheckSizeError:`, e)
@@ -78,9 +80,9 @@ if (cluster.isMaster) {
   }
   setInterval(setOffersCheckSize, 9000)
 
-  const setCampaignsCheckSize = async () => {
+  const setCampaignsCheckSize: () => Promise<void> = async () => {
     try {
-      let campaignsSize = await redis.get(`campaignsSize_`)
+      let campaignsSize: string | null = await redis.get(`campaignsSize_`)
       socket.emit('fileSizeCampaignsCheck', campaignsSize)
     } catch (e) {
       consola.error(`setCampaignsCheckSizeError:`, e)
@@ -123,17 +125,15 @@ if (cluster.isMaster) {
     })
   }
   if (process.env.ENV === 'development') {
-    setInterval(setOffersToRedis, 60000) // 60000 -> 60 sec
-    setTimeout(setOffersToRedis, 6000)
+    // setInterval(setOffersToRedis, 60000) // 60000 -> 60 sec
 
     // setInterval(getOffersFileFromBucket, 6000)
-    // setTimeout(getOffersFileFromBucket, 6000)
+    setTimeout(getOffersFileFromBucket, 6000)
+    setTimeout(setOffersToRedis, 9000)
 
-    setTimeout(setCampaignsToRedis, 6000)
-    setInterval(setCampaignsToRedis, 60000) // 60000 -> 60 sec
-
-    // setTimeout(getCampaignsFileFromBucket, 6000)
-    // setInterval(getCampaignsFileFromBucket, 6000)
+    // setInterval(setCampaignsToRedis, 60000) // 60000 -> 60 sec
+    setTimeout(getCampaignsFileFromBucket, 13000)
+    setTimeout(setCampaignsToRedis, 15000)
 
   }
 

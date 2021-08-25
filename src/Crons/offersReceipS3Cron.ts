@@ -34,7 +34,7 @@ export const getOffersFileFromBucket = async () => {
           consola.success(`file size ${tempFileName} is { ${size} }`);
           await redis.set(`offersSize_`, size!)
         })
-        consola.success(`file ${tempFileName} was uploaded correctly.`);
+        consola.success(`file from s3:${s3BucketName}/${s3Key}, to  ${tempFileName} was uploaded correctly.`);
 
       });
 
