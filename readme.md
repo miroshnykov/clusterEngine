@@ -1,4 +1,13 @@
-> create recipe and send to s3 folder co-recipe
+> traffic server 
+## Cluster 
+    A single instance of Node.js runs in a single thread. To take advantage of multi-core systems, the user will sometimes want to launch a cluster of Node.js processes to handle the load.
+    https://nodejs.org/api/cluster.html#cluster_cluster
+## Recipe 
+    recipe id getting from S3 bucket "co-recipe-prod"
+    checking fileSizeOffersCheck  && fileSizeCampaignsCheck every 20 sec with co-recipe project if size of recipe is different then download new files from s3 and reload the data to local redis for each instances
+## Redis
+    each instanse has local redis with offers && campaigns populated with cron campaignsToRedisCron & offersToRedisCron
+
 ## Docker setup
 	docker build -t clustrEngine .
    	docker run -it -p 5000:5000 --rm --name clustrEngine-  clustrEngine

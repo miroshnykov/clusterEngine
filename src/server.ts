@@ -78,7 +78,7 @@ if (cluster.isMaster) {
       consola.error(`setOffersCheckSizeError:`, e)
     }
   }
-  setInterval(setOffersCheckSize, 9000)
+  setInterval(setOffersCheckSize, 20000)
 
   const setCampaignsCheckSize: () => Promise<void> = async () => {
     try {
@@ -88,7 +88,7 @@ if (cluster.isMaster) {
       consola.error(`setCampaignsCheckSizeError:`, e)
     }
   }
-  setInterval(setCampaignsCheckSize, 9000)
+  setInterval(setCampaignsCheckSize, 20000)
 
   for (let i = 0; i < coreThread.length; i++) {
     cluster.fork()
